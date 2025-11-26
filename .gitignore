@@ -1,0 +1,5 @@
+letters/
+examples/
+*.png
+*.bin
+__pycache__/
