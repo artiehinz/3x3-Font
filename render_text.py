@@ -55,10 +55,26 @@ def save_bin(glyphs, path=Path("glyph_matrices.bin")):
     path.write_bytes(bytes(data))
 
 
+def slug_to_text(path: Path):
+    stem = path.stem.replace("-", " ").strip()
+    return stem or "rendered"
+
+
+def render_to_file(text, glyphs, out_path: Path):
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    render(text, glyphs).save(out_path)
+    print(f"Saved {out_path.resolve()}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--text")
     ap.add_argument("--output", type=Path, default=EXAMPLES / "rendered.png")
+    ap.add_argument(
+        "--use-examples",
+        action="store_true",
+        help="Regenerate every PNG in examples/ using the text inferred from its filename.",
+    )
     args = ap.parse_args()
 
     glyphs = load_glyphs()
@@ -66,14 +82,18 @@ def main():
         raise SystemExit("No glyphs found.")
     save_bin(glyphs)
 
+    if args.use_examples:
+        paths = sorted(EXAMPLES.glob("*.png"))
+        if not paths:
+            raise SystemExit("No example PNGs found in examples/.")
+        for p in paths:
+            render_to_file(slug_to_text(p), glyphs, p)
+        return
+
     text = args.text or input("Enter text to render: ")
     slug = "-".join("".join(ch for ch in w.lower() if ch.isalnum()) for w in text.split()) or "rendered"
-    out = args.output
-    if args.output == EXAMPLES / "rendered.png":
-        out = EXAMPLES / f"{slug}.png"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    render(text, glyphs).save(out)
-    print(f"Saved {out.resolve()}")
+    out = args.output if args.output != EXAMPLES / "rendered.png" else EXAMPLES / f"{slug}.png"
+    render_to_file(text, glyphs, out)
 
 
 if __name__ == "__main__":
