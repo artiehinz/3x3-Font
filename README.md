@@ -36,7 +36,7 @@ Render text using a custom 3x3 pixel alphabet stored in a tiny binary font and s
 
 "Look at all them chickens"
 
-![Look at all them chickens](examples/tlook-at-all-them-chickens.png)
+![Look at all them chickens](examples/look-at-all-them-chickens.png)
 
 ## Details
 - Letters are 3x3 pixels each and loaded as binary masks (black pixels = 1, others = 0).
