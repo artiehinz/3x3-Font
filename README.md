@@ -23,8 +23,13 @@ Render text using a custom 3x3 pixel alphabet stored in a tiny binary font and s
 
 ## Examples
 - `examples/demo.png` -> "demo"
+`![demo](examples/demo.png)`
+
 - `examples/test.png` -> "test"
+`![test](examples/test.png)`
+
 - `examples/thank-you.png` -> "thank you"
+`![thank you](examples/thank-you.png)`
 
 ## Details
 - Letters are 3x3 pixels each and loaded as binary masks (black pixels = 1, others = 0).
