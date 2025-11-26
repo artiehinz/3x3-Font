@@ -1,10 +1,10 @@
 # 3x3 Font Renderer
 
-Render text using a custom 3x3 pixel alphabet (PNG glyphs) and scale the output for readability.
+Render text using a custom 3x3 pixel alphabet stored in a tiny binary font and scale the output for readability while keeping the footprint minimal.
 
 ## Setup
 - Requires Python 3 and Pillow (`pip install pillow`).
-- Place 3x3 RGBA glyphs in `letters/` (one PNG per letter, named like `a.png`, `b.png`, etc.).
+- Font data comes from `glyph_matrices.bin` (bundled). Rendering is binary-only—no PNG glyphs are read.
 
 ## Usage
 - Render text (saves to `examples/<slug>.png` by default):
@@ -27,9 +27,9 @@ Render text using a custom 3x3 pixel alphabet (PNG glyphs) and scale the output 
 - `examples/thank-you.png` -> "thank you"
 
 ## Details
-- Letters are loaded as 3x3 binary masks (black pixels = 1, others = 0).
+- Letters are 3x3 pixels each and loaded as binary masks (black pixels = 1, others = 0).
 - Output uses a white background, 1px spacer between letters, 3px margin, and 10x nearest-neighbor upscaling.
-- A compact binary font dump is written to `glyph_matrices.bin` (magic `3X3`, version 2, bit-packed 26-letter masks).
+- Minimal-memory font format: `glyph_matrices.bin` packs every letter into 9 bits (3x3), so the full 26-letter alphabet lives in well under 40 bytes (magic `3X3`, version 2 header included). The renderer reads this binary exclusively—no PNG fallback.
 
 ## Repo Hygiene
-- Generated outputs live in `examples/` (ignored by `.gitignore` alongside `letters/`, PNGs, binaries, and `__pycache__/`).
+- Generated outputs live in `examples/` (ignored by `.gitignore` alongside `__pycache__/` and any scratch assets).

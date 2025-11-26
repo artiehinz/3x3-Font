@@ -7,14 +7,34 @@ EXAMPLES = DIR / "examples"
 SCALE, MARGIN, SPACER = 10, 3, 1
 
 
-def load_glyphs():
+def load_glyphs_from_bin(path=DIR / "glyph_matrices.bin"):
+    if not path.exists():
+        return {}
+    data = path.read_bytes()
+    if len(data) < 4 or data[:3] != b"3X3":
+        raise ValueError("Invalid font binary (bad magic).")
+    version = data[3]
+    if version != 2:
+        raise ValueError(f"Unsupported font version: {version}")
+
+    bits = []
+    for byte in data[4:]:
+        bits.extend((byte >> i) & 1 for i in range(8))
+
+    needed = 26 * 9
+    if len(bits) < needed:
+        raise ValueError("Incomplete font binary (not enough bits).")
+    bits = bits[:needed]
+
     g = {}
-    for p in (DIR / "letters").glob("*.png"):
-        px = Image.open(p).convert("RGBA").load()
-        g[p.stem.lower()] = [
-            [1 if px[x, y][3] and px[x, y][:3] == (0, 0, 0) else 0 for x in range(3)]
-            for y in range(3)
-        ]
+    idx = 0
+    for letter in (chr(i) for i in range(ord("a"), ord("z") + 1)):
+        mat = [[0] * 3 for _ in range(3)]
+        for r in range(3):
+            for c in range(3):
+                mat[r][c] = bits[idx]
+                idx += 1
+        g[letter] = mat
     return g
 
 
@@ -33,26 +53,6 @@ def render(text, glyphs):
     bg = Image.new("RGBA", (canvas.width + 2 * MARGIN, canvas.height + 2 * MARGIN), (255, 255, 255, 255))
     bg.alpha_composite(canvas, dest=(MARGIN, MARGIN))
     return bg.resize((bg.width * SCALE, bg.height * SCALE), Image.NEAREST)
-
-
-def save_bin(glyphs, path=Path("glyph_matrices.bin")):
-    bits = []
-    for letter in (chr(i) for i in range(ord("a"), ord("z") + 1)):
-        mat = glyphs.get(letter, [[0] * 3 for _ in range(3)])
-        mask = sum((v << (r * 3 + c)) for r, row in enumerate(mat) for c, v in enumerate(row))
-        bits.extend((mask >> i) & 1 for i in range(9))
-
-    data = bytearray(b"3X3")  # magic
-    data.append(2)  # version
-    byte = 0
-    for i, bit in enumerate(bits):
-        byte |= bit << (i % 8)
-        if i % 8 == 7:
-            data.append(byte)
-            byte = 0
-    if len(bits) % 8:
-        data.append(byte)
-    path.write_bytes(bytes(data))
 
 
 def slug_to_text(path: Path):
@@ -77,10 +77,9 @@ def main():
     )
     args = ap.parse_args()
 
-    glyphs = load_glyphs()
+    glyphs = load_glyphs_from_bin()
     if not glyphs:
-        raise SystemExit("No glyphs found.")
-    save_bin(glyphs)
+        raise SystemExit("No glyphs found (expected glyph_matrices.bin).")
 
     if args.use_examples:
         paths = sorted(EXAMPLES.glob("*.png"))
