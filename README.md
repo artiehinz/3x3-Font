@@ -23,15 +23,19 @@ Render text using a custom 3x3 pixel alphabet stored in a tiny binary font and s
 
 ## Examples
 `examples/demo.png` -> "demo"
+
 ![demo](examples/demo.png)
 
 `examples/test.png` -> "test"
+
 ![test](examples/test.png)
 
 `examples/thank-you.png` -> "thank you"
+
 ![thank you](examples/thank-you.png)
 
 `examples/look-at-all-them-chickens.png` -> "Look at all them chickens"
+
 ![thank you](examples/tlook-at-all-them-chickens.png)
 
 ## Details
