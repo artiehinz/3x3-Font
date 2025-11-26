@@ -31,6 +31,9 @@ Render text using a custom 3x3 pixel alphabet stored in a tiny binary font and s
 `examples/thank-you.png` -> "thank you"
 ![thank you](examples/thank-you.png)
 
+`examples/look-at-all-them-chickens.png` -> "Look at all them chickens"
+![thank you](examples/tlook-at-all-them-chickens.png)
+
 ## Details
 - Letters are 3x3 pixels each and loaded as binary masks (black pixels = 1, others = 0).
 - Output uses a white background, 1px spacer between letters, 3px margin, and 10x nearest-neighbor upscaling.
